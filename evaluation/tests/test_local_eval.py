@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from evaluation.run_local_eval import (
-    build_request, load_cases, parse_response, run, validate_config, validate_output
+    build_request, load_cases, local_open, parse_response, RejectRedirectHandler, run, validate_config, validate_output
 )
 
 
@@ -43,6 +43,16 @@ class LocalEvaluationTests(unittest.TestCase):
         self.assertIsInstance(payload["format"], dict)
         self.assertIn("ticket", json.dumps(payload))
         self.assertEqual(payload["options"]["temperature"], 0)
+
+    def test_local_requests_disable_proxies_and_redirects(self):
+        with patch("evaluation.run_local_eval.urllib.request.build_opener") as build_opener:
+            opener = build_opener.return_value
+            request = object()
+            local_open(request, 3)
+            handlers = build_opener.call_args.args
+            self.assertEqual(handlers[0].proxies, {})
+            self.assertIsInstance(handlers[1], RejectRedirectHandler)
+            opener.open.assert_called_once_with(request, timeout=3)
 
     def test_response_parsing_preserves_usage_and_latency_fields(self):
         parsed = parse_response({
