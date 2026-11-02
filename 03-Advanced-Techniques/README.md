@@ -5,6 +5,7 @@ This section covers workflows and system patterns that extend beyond a single pr
 ## Learning outcomes
 
 After completing this section, you should be able to:
+
 - decompose multi-stage tasks and validate intermediate outputs;
 - explain tree-search-style approaches without mistaking a prompt scaffold for a search algorithm;
 - describe a retrieval-augmented generation pipeline and evaluate retrieval separately from generation;
@@ -30,6 +31,7 @@ After completing this section, you should be able to:
 ## How to evaluate advanced workflows
 
 For each technique, record:
+
 - task definition and representative test set;
 - model/provider/version and relevant settings;
 - baseline and candidate workflow;
