@@ -52,6 +52,7 @@ By working through this repository, you will learn to:
 - [09 — Resources](09-Resources/README.md)
 - [10 — Glossary](10-Glossary/AI-and-Prompt-Engineering-Glossary.md)
 - [Examples](examples/)
+- [Cross-Model Evaluation Suite](evaluation/README.md)
 
 ## Core principles
 
@@ -83,6 +84,7 @@ Read [SECURITY.md](SECURITY.md) for vulnerability reporting and [CODE_OF_CONDUCT
 - [x] Develop the advanced technique curriculum with limitations and citations.
 - [x] Build a categorized library of 50 reusable prompt templates across ten domains.
 - [x] Add intermediate and advanced exercises, case studies, and reproducible evaluation examples.
+- [ ] Run and publish reviewed cross-model evaluations using identified model versions and verified pricing.
 - [ ] Expand authoritative resources and maintain links over time.
 
 Progress is tracked through reviewed content and tests, not arbitrary completion badges or unverified statistics.

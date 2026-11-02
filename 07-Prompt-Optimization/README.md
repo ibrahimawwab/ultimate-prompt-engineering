@@ -9,6 +9,8 @@ Improve prompts through controlled experiments rather than intuition alone. A hi
 3. [Controlled Prompt Experiments](03-Controlled-Prompt-Experiments.md)
 4. [Prompt Experiment Record Template](04-Experiment-Record-Template.md)
 
+5. [Executable Cross-Model Evaluation Suite](../evaluation/README.md) — run the fixed synthetic classification set against configured OpenAI-compatible endpoints.
+
 ## Evaluation principles
 
 - Compare baseline and candidate prompts on the same representative inputs.

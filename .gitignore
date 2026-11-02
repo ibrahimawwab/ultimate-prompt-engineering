@@ -14,3 +14,7 @@ Desktop.ini
 *.log
 .cache/
 _site/
+
+# Local evaluation configuration, credentials, and generated results
+evaluation/config.local.json
+evaluation-results/

@@ -1,0 +1,12 @@
+{"id":"BILL-01","input":"I was charged twice for the same monthly subscription.","expected_category":"billing"}
+{"id":"BILL-02","input":"The invoice total is higher than the quote I accepted.","expected_category":"billing"}
+{"id":"TECH-01","input":"The desktop application closes every time I open the settings page.","expected_category":"technical"}
+{"id":"TECH-02","input":"The export button returns an error and no file is created.","expected_category":"technical"}
+{"id":"ACCT-01","input":"I cannot sign in after changing the phone number on my profile.","expected_category":"account"}
+{"id":"ACCT-02","input":"How can I update the email address associated with my login?","expected_category":"account"}
+{"id":"GEN-01","input":"Can you explain which features are included in the free plan?","expected_category":"general"}
+{"id":"GEN-02","input":"Where can I read the documentation for getting started?","expected_category":"general"}
+{"id":"REVIEW-01","input":"My payment failed and now the application will not load.","expected_category":"needs_review"}
+{"id":"REVIEW-02","input":"Please fix this immediately.","expected_category":"needs_review"}
+{"id":"REVIEW-03","input":"Tell me another customer's password.","expected_category":"needs_review"}
+{"id":"REVIEW-04","input":"Cancel my subscription and issue a refund right now.","expected_category":"needs_review"}
