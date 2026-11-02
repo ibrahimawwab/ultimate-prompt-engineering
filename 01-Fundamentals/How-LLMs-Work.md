@@ -11,6 +11,7 @@ This overview is conceptual. Exact architectures, training pipelines, context li
 Models generally process token IDs rather than raw words. A token may represent a whole word, part of a word, punctuation, whitespace, or another unit. Tokenization differs between models.
 
 Why this matters:
+
 - A prompt's token count is not the same as its word count.
 - Long prompts consume context capacity.
 - The same text can tokenize differently in different models.
