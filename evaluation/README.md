@@ -6,7 +6,7 @@ This directory contains a standard-library evaluation harness with native reques
 
 The fixed synthetic dataset contains 40 English customer-support classification cases across five labels: billing, technical, account, general, and needs_review. Cases are tagged by difficulty (easy, medium, hard) and topic. The set includes boundary cases, multi-intent requests, underspecified inputs, sensitive requests, and a prompt-injection-style ticket. Labels are a teaching fixture and should be reviewed before consequential use.
 
-Each configured model receives the same system prompt, user input, temperature, and maximum output-token setting where provider controls are equivalent. Provider-specific system-message placement and JSON response controls differ; these protocol differences are documented and reflected in the adapters. The example profile pins low-cost model IDs for a first comparison. GPT-6 Luna is sent reasoning_effort=none with temperature=0; Claude Haiku 5.5 omits temperature because its model documentation instructs clients to omit temperature, top_p, and top_k; Gemini 3.8 Flash receives temperature=0. These settings are therefore aligned where supported, not identical.
+Each configured model receives the same system prompt, user input, temperature, and maximum output-token setting where provider controls are equivalent. Provider-specific system-message placement and JSON response controls differ; these protocol differences are documented and reflected in the adapters. The example profile uses GPT-6 Luna, Claude Haiku 5.5, and Gemini 3.8 Flash. GPT-6 Luna is sent reasoning_effort=none with temperature=0; Claude Haiku 5.5 omits temperature because its current model documentation instructs clients to omit temperature, top_p, and top_k; Gemini 3.8 Flash receives temperature=0. The controls are aligned where supported, not forced to be identical. The example profile pins low-cost model IDs for a first comparison. GPT-6 Luna is sent reasoning_effort=none with temperature=0; Claude Haiku 5.5 omits temperature because its model documentation instructs clients to omit temperature, top_p, and top_k; Gemini 3.8 Flash receives temperature=0. These settings are therefore aligned where supported, not identical.
 
 Per-case results include raw output, schema validation, expected/predicted labels, correctness, request status, latency, request ID when exposed, provider-reported token usage, finish reason, and estimated cost when configured. Summary metrics include request success rate, schema-valid rate, category accuracy across all cases (invalid output and request failures count as incorrect), accuracy among schema-valid outputs, confusion matrix, mean/median latency, token totals, and estimated cost.
 
@@ -66,3 +66,13 @@ The runner does not silently retry failed requests. It preserves per-case failur
 Publish sanitized configuration, case-set and prompt hashes, run date/time, provider and exact model IDs, version disclosure, settings, counts and denominators, per-case results or a reviewable sanitized subset, all error and format-failure counts, confusion matrices, token usage, pricing source/date/currency, cost assumptions, latency methodology, and limitations. Include independent reviewer's scoring notes. Do not claim one model is better based on this small synthetic fixture alone.
 
 For high-impact use, create a larger domain-specific test set, independently adjudicate labels, run multiple repetitions where stochasticity matters, and validate against real task outcomes before drawing operational conclusions.
+
+## Live evaluation through GitHub Actions
+
+A separate manually triggered workflow runs the configured three-model comparison and uploads the JSONL/summary artifacts. It requires these repository Actions secrets:
+
+- OPENAI_API_KEY
+- ANTHROPIC_API_KEY
+- GOOGLE_API_KEY
+
+The workflow requires the operator to explicitly confirm that provider API usage may incur charges. It does not run on pushes or pull requests. The example model profile uses a maximum output of 300 tokens per request; actual cost depends on measured input/output tokens, account pricing, and any applicable provider-specific pricing conditions. Review the configured prices and authorize a spending limit before triggering the workflow.
