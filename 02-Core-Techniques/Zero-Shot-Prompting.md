@@ -14,13 +14,13 @@ Specify the objective, relevant input, constraints, and output format. Define am
 
 ## Worked example
 
-**Weak prompt**
+### Weak prompt
 
 ```text
 Summarize this.
 ```
 
-**Improved prompt**
+### Improved prompt
 
 ```text
 Summarize the report below for a non-specialist reader.
