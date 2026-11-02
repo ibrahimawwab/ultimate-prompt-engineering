@@ -1,0 +1,15 @@
+{
+  "ollama_base_url": "http://127.0.0.1:11434",
+  "timeout_seconds": 300,
+  "temperature": 0,
+  "num_predict": 512,
+  "keep_alive": "5m",
+  "models": [
+    {
+      "name": "qwen3-4b",
+      "model": "qwen3:4b",
+      "license": "Apache-2.0",
+      "license_url": "https://ollama.com/library/qwen3:4b"
+    }
+  ]
+}
