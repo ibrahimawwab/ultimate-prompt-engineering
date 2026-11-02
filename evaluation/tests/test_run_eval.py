@@ -91,6 +91,8 @@ class EvaluationHarnessTests(unittest.TestCase):
         _, _, luna_payload = build_request(luna_model, settings, case, "secret")
         self.assertEqual(luna_payload["reasoning_effort"], "none")
         self.assertEqual(luna_payload["temperature"], 0)
+        self.assertEqual(luna_payload["max_completion_tokens"], 123)
+        self.assertNotIn("max_tokens", luna_payload)
         google_url, google_headers, google_payload = build_request(models[2], settings, case, "secret")
         self.assertEqual(google_headers["x-goog-api-key"], "secret")
         self.assertNotIn("{model}", google_url)
