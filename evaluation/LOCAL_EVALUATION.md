@@ -4,11 +4,13 @@ This is a separate evaluation path from the optional hosted-provider runner. It 
 
 ## Model profile
 
-The example configuration uses **Qwen3 4B** through Ollama as `qwen3:4b`. The Ollama model listing currently reports a 2.5 GB Q4_K_M download and an Apache 2.0 license. Model size is not the same as required runtime RAM; actual memory use depends on context, runtime, OS, and other processes. If this model is too slow or exceeds available memory, use a smaller tag such as `qwen3:1.7b` and record the exact model tag/digest in the resulting report.
+The example configuration defaults to **Qwen3 1.7B** through Ollama as `qwen3:1.7b`. This is the recommended starting point for a Windows computer with 8 GB of system RAM. The smaller model reduces memory pressure compared with Qwen3 4B, but may deliver lower classification accuracy; the evaluation must measure that trade-off rather than assume parity.
 
-- Ollama model listing and tag: https://ollama.com/library/qwen3:4b
-- Qwen3-4B model card and Apache-2.0 metadata: https://huggingface.co/Qwen/Qwen3-4B
+- Ollama Qwen3 model listing and available tags: https://ollama.com/library/qwen3
+- Qwen3 model family and Apache-2.0 license information: https://github.com/QwenLM/Qwen3
 - Ollama local chat API and JSON-schema structured outputs: https://github.com/ollama/ollama/blob/main/docs/api.md
+
+Model download size is not the same as required runtime RAM. Actual memory use depends on quantization, context length, runtime, operating system, and other processes. Close memory-intensive applications before running a benchmark. If Qwen3 1.7B is stable and sufficient, retain it as the baseline. A larger model such as `qwen3:4b` can be added later only if measured memory headroom permits it.
 
 The model tag is not treated as immutable. The runner records the local digest from Ollama's `/api/tags` response when available, plus the Ollama version. Review the actual downloaded model metadata before redistribution or publication.
 
@@ -16,15 +18,16 @@ The model tag is not treated as immutable. The runner records the local digest f
 
 1. Install Ollama from https://ollama.com/download/windows.
 2. Start Ollama. Its local API normally listens on `http://127.0.0.1:11434`.
-3. Open Command Prompt or PowerShell and download the model once:
+3. Open Command Prompt or PowerShell and download the recommended model once:
 
-       ollama pull qwen3:4b
+       ollama pull qwen3:1.7b
 
    This downloads model weights to your computer. It is not an API purchase, but it uses disk space and internet bandwidth. The model pull is intentionally not part of GitHub Actions.
 4. Verify the model is installed:
 
        ollama list
 
+   Confirm that `qwen3:1.7b` appears in the list.
 5. From the repository root, run offline validation:
 
        python evaluation/run_local_eval.py --validate-only
@@ -40,13 +43,13 @@ No API key or paid provider account is used by this command.
 Edit `evaluation/config.local.example.json` or create an untracked local copy and add another entry to `models`, for example:
 
        {
-         "name": "qwen3-1.7b",
-         "model": "qwen3:1.7b",
+         "name": "qwen3-4b",
+         "model": "qwen3:4b",
          "license": "Apache-2.0",
-         "license_url": "https://ollama.com/library/qwen3"
+         "license_url": "https://ollama.com/library/qwen3:4b"
        }
 
-Pull each selected model manually with `ollama pull MODEL_TAG` before running. Each model receives the same 40 cases and prompt. Use exact model tags and retain output artifacts so comparisons can be reproduced.
+Pull each selected model manually with `ollama pull MODEL_TAG` before running. On an 8 GB computer, do not run multiple models concurrently; test a larger model only after confirming that the smaller baseline runs reliably. Each model receives the same 40 cases and prompt. Use exact model tags and retain output artifacts so comparisons can be reproduced.
 
 ## Output artifacts
 
