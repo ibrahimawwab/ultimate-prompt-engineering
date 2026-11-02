@@ -59,6 +59,15 @@ class EvaluationHarnessTests(unittest.TestCase):
         anthropic_url, anthropic_headers, anthropic_payload = build_request(models[1], settings, case, "secret")
         self.assertEqual(anthropic_headers["x-api-key"], "secret")
         self.assertIn("system", anthropic_payload)
+        haiku_model = {"provider": "anthropic_messages", "base_url": "https://example.test",
+                       "model": "claude-haiku-5-5", "supports_temperature": False}
+        _, _, haiku_payload = build_request(haiku_model, settings, case, "secret")
+        self.assertNotIn("temperature", haiku_payload)
+        luna_model = {"provider": "openai_chat_completions", "base_url": "https://example.test",
+                      "model": "gpt-6-luna", "reasoning_effort": "none"}
+        _, _, luna_payload = build_request(luna_model, settings, case, "secret")
+        self.assertEqual(luna_payload["reasoning_effort"], "none")
+        self.assertEqual(luna_payload["temperature"], 0)
         google_url, google_headers, google_payload = build_request(models[2], settings, case, "secret")
         self.assertEqual(google_headers["x-goog-api-key"], "secret")
         self.assertNotIn("{model}", google_url)
