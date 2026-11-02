@@ -12,7 +12,7 @@ class EvaluationHarnessTests(unittest.TestCase):
         self.assertTrue(validate_output(json.dumps(value))["valid"])
 
     def test_markdown_fence_is_rejected(self):
-        self.assertFalse(validate_output('\\`\\`\\`json\\n{}\\n\\`\\`\\`')["valid"])
+        self.assertFalse(validate_output(chr(96) * 3 + "json\n{}\n" + chr(96) * 3)["valid"])
 
     def test_wrong_keys_are_rejected(self):
         value = {"category": "billing", "summary": "x", "missing_information": [],
