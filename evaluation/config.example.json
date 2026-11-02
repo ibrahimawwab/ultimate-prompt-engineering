@@ -1,40 +1,52 @@
 {
   "settings": {
     "temperature": 0,
-    "max_tokens": 400
+    "max_tokens": 300
   },
   "timeout_seconds": 60,
   "models": [
     {
-      "name": "openai-model-placeholder",
+      "name": "openai-gpt-6-luna",
       "provider": "openai_chat_completions",
       "base_url": "https://api.openai.com/v1/chat/completions",
-      "model": "replace-with-exact-model-id",
-      "model_version": "record-exact-snapshot-or-not-disclosed",
+      "model": "gpt-6-luna",
+      "model_version": "gpt-6-luna (provider-managed model ID; no immutable snapshot pinned)",
+      "reasoning_effort": "none",
+      "supports_temperature": true,
       "api_key_env": "OPENAI_API_KEY",
-      "input_cost_per_1m_tokens": null,
-      "output_cost_per_1m_tokens": null
+      "input_cost_per_1m_tokens": 0.1,
+      "output_cost_per_1m_tokens": 0.5,
+      "pricing_source": "https://developers.openai.com/api/docs/pricing",
+      "pricing_effective_date": "2026-11-02"
     },
     {
-      "name": "anthropic-model-placeholder",
+      "name": "anthropic-claude-haiku-5-5",
       "provider": "anthropic_messages",
       "base_url": "https://api.anthropic.com/v1/messages",
-      "model": "replace-with-exact-model-id",
-      "model_version": "record-exact-version-or-not-disclosed",
+      "model": "claude-haiku-5-5",
+      "model_version": "claude-haiku-5-5 (provider-managed model ID; no immutable snapshot pinned)",
       "api_version": "2023-06-01",
+      "supports_temperature": false,
       "api_key_env": "ANTHROPIC_API_KEY",
-      "input_cost_per_1m_tokens": null,
-      "output_cost_per_1m_tokens": null
+      "input_cost_per_1m_tokens": 0.1,
+      "output_cost_per_1m_tokens": 0.5,
+      "pricing_source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "pricing_effective_date": "2026-11-02",
+      "pricing_valid_through": "Prompts up to 100,000 tokens; higher rates apply above 100,000"
     },
     {
-      "name": "google-model-placeholder",
+      "name": "google-gemini-3-8-flash",
       "provider": "google_generative_language",
       "base_url": "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-      "model": "replace-with-exact-model-id",
-      "model_version": "record-exact-version-or-not-disclosed",
+      "model": "gemini-3.8-flash",
+      "model_version": "gemini-3.8-flash (stable model ID; provider-managed release)",
+      "supports_temperature": true,
       "api_key_env": "GOOGLE_API_KEY",
-      "input_cost_per_1m_tokens": null,
-      "output_cost_per_1m_tokens": null
+      "input_cost_per_1m_tokens": 0.75,
+      "output_cost_per_1m_tokens": 3.75,
+      "pricing_source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "pricing_effective_date": "2026-11-02",
+      "pricing_valid_through": "2026-12-31; announced standard rates increase 2027-01-01"
     }
   ]
 }
