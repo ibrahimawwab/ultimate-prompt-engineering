@@ -84,6 +84,13 @@ def validate_config(config: Any) -> None:
         if model["name"] in names:
             raise ValueError(f"Duplicate model name: {model['name']}")
         names.add(model["name"])
+        if "supports_temperature" in model and not isinstance(model["supports_temperature"], bool):
+            raise ValueError(f"{model['name']}.supports_temperature must be boolean")
+        if model.get("reasoning_effort") not in (None, "none", "low", "medium", "high", "xhigh", "max"):
+            raise ValueError(f"{model['name']}.reasoning_effort is unsupported")
+        for key in ("pricing_source", "pricing_effective_date", "pricing_valid_through", "pricing_conditions"):
+            if key in model and not isinstance(model[key], str):
+                raise ValueError(f"{model['name']}.{key} must be a string")
         for key in ("input_cost_per_1m_tokens", "output_cost_per_1m_tokens"):
             value = model.get(key)
             if value is not None and (not isinstance(value, (int, float)) or value < 0):
@@ -118,9 +125,12 @@ def build_request(model: dict[str, Any], settings: dict[str, Any], case: dict[st
             "model": model["model"],
             "messages": [{"role": "system", "content": SYSTEM_PROMPT},
                          {"role": "user", "content": case["input"]}],
-            "temperature": settings["temperature"],
-            "max_tokens": settings["max_tokens"],
+            "max_completion_tokens": settings["max_tokens"],
         }
+        if model.get("reasoning_effort") is not None:
+            payload["reasoning_effort"] = model["reasoning_effort"]
+        if model.get("supports_temperature", True):
+            payload["temperature"] = settings["temperature"]
         return model["base_url"], headers, payload
     if provider == "anthropic_messages":
         headers["x-api-key"] = api_key
@@ -128,8 +138,10 @@ def build_request(model: dict[str, Any], settings: dict[str, Any], case: dict[st
         payload = {
             "model": model["model"], "system": SYSTEM_PROMPT,
             "messages": [{"role": "user", "content": case["input"]}],
-            "temperature": settings["temperature"], "max_tokens": settings["max_tokens"],
+            "max_tokens": settings["max_tokens"],
         }
+        if model.get("supports_temperature", True):
+            payload["temperature"] = settings["temperature"]
         return model["base_url"], headers, payload
     if provider == "google_generative_language":
         headers["x-goog-api-key"] = api_key
@@ -221,6 +233,14 @@ def run(config: dict[str, Any], cases: list[dict[str, Any]], out_dir: Path,
             metrics = {
                 "name": model["name"], "provider": model["provider"], "model": model["model"],
                 "model_version": model["model_version"], "base_url": model["base_url"],
+                "reasoning_effort": model.get("reasoning_effort"),
+                "supports_temperature": model.get("supports_temperature", True),
+                "pricing_source": model.get("pricing_source"),
+                "pricing_effective_date": model.get("pricing_effective_date"),
+                "pricing_valid_through": model.get("pricing_valid_through"),
+                "pricing_conditions": model.get("pricing_conditions"),
+                "input_cost_per_1m_tokens": model.get("input_cost_per_1m_tokens"),
+                "output_cost_per_1m_tokens": model.get("output_cost_per_1m_tokens"),
                 "successes": 0, "schema_valid": 0, "category_correct": 0,
                 "format_failures": 0, "errors": 0, "input_tokens": 0, "output_tokens": 0,
                 "cost_sum": 0.0, "cost_complete": True, "latencies": [],

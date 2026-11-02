@@ -39,6 +39,29 @@ class EvaluationHarnessTests(unittest.TestCase):
             validate_config({"settings": {"temperature": 0, "max_tokens": 100},
                              "models": [{"name": "incomplete"}]})
 
+    def test_example_model_profile_has_pricing_provenance(self):
+        config_path = Path(__file__).parents[1] / "config.example.json"
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+        validate_config(config)
+        self.assertEqual(len(config["models"]), 3)
+        anthropic = next(model for model in config["models"] if model["provider"] == "anthropic_messages")
+        self.assertFalse(anthropic["supports_temperature"])
+        self.assertTrue(anthropic["pricing_source"].startswith("https://"))
+        self.assertIn("100,000", anthropic["pricing_conditions"])
+
+    def test_invalid_temperature_support_setting_is_rejected(self):
+        config = {
+            "settings": {"temperature": 0, "max_tokens": 100},
+            "models": [{
+                "name": "invalid", "provider": "openai_chat_completions",
+                "base_url": "https://example.test", "model": "model",
+                "model_version": "version", "api_key_env": "API_KEY",
+                "supports_temperature": "false",
+            }],
+        }
+        with self.assertRaises(ValueError):
+            validate_config(config)
+
     def test_three_provider_request_shapes(self):
         case = {"input": "example ticket"}
         settings = {"temperature": 0, "max_tokens": 123}
@@ -59,6 +82,17 @@ class EvaluationHarnessTests(unittest.TestCase):
         anthropic_url, anthropic_headers, anthropic_payload = build_request(models[1], settings, case, "secret")
         self.assertEqual(anthropic_headers["x-api-key"], "secret")
         self.assertIn("system", anthropic_payload)
+        haiku_model = {"provider": "anthropic_messages", "base_url": "https://example.test",
+                       "model": "claude-haiku-5-5", "supports_temperature": False}
+        _, _, haiku_payload = build_request(haiku_model, settings, case, "secret")
+        self.assertNotIn("temperature", haiku_payload)
+        luna_model = {"provider": "openai_chat_completions", "base_url": "https://example.test",
+                      "model": "gpt-6-luna", "reasoning_effort": "none"}
+        _, _, luna_payload = build_request(luna_model, settings, case, "secret")
+        self.assertEqual(luna_payload["reasoning_effort"], "none")
+        self.assertEqual(luna_payload["temperature"], 0)
+        self.assertEqual(luna_payload["max_completion_tokens"], 123)
+        self.assertNotIn("max_tokens", luna_payload)
         google_url, google_headers, google_payload = build_request(models[2], settings, case, "secret")
         self.assertEqual(google_headers["x-goog-api-key"], "secret")
         self.assertNotIn("{model}", google_url)
