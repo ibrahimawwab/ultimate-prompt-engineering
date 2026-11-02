@@ -76,3 +76,15 @@ A separate manually triggered workflow runs the configured three-model compariso
 - GOOGLE_API_KEY
 
 The workflow requires the operator to explicitly confirm that provider API usage may incur charges. It does not run on pushes or pull requests. The example model profile uses a maximum output of 300 tokens per request; actual cost depends on measured input/output tokens, account pricing, and any applicable provider-specific pricing conditions. Review the configured prices and authorize a spending limit before triggering the workflow.
+
+## Zero-cost local evaluation (no API keys)
+
+For evaluation on your own computer without paid provider API access, use the separate loopback-only Ollama runner:
+
+- Setup, model license, installation, commands, outputs, and limitations: [LOCAL_EVALUATION.md](LOCAL_EVALUATION.md)
+- Runner: [run_local_eval.py](run_local_eval.py)
+- Credential-free example config: [config.local.example.json](config.local.example.json)
+
+The local runner accepts only an Ollama HTTP endpoint on localhost/127.0.0.1/::1. It does not use hosted-provider keys or call commercial model APIs. Its GitHub Actions workflow runs offline tests and validation only; it does not download model weights or perform inference.
+
+The existing commercial-provider adapters and live workflow remain separate optional integrations. Do not run the hosted-provider workflow for a zero-cost evaluation.
