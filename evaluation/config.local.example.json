@@ -6,10 +6,10 @@
   "keep_alive": "5m",
   "models": [
     {
-      "name": "qwen3-4b",
-      "model": "qwen3:4b",
+      "name": "qwen3-1.7b",
+      "model": "qwen3:1.7b",
       "license": "Apache-2.0",
-      "license_url": "https://ollama.com/library/qwen3:4b"
+      "license_url": "https://ollama.com/library/qwen3"
     }
   ]
 }
