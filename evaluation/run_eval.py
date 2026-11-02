@@ -125,7 +125,7 @@ def build_request(model: dict[str, Any], settings: dict[str, Any], case: dict[st
             "model": model["model"],
             "messages": [{"role": "system", "content": SYSTEM_PROMPT},
                          {"role": "user", "content": case["input"]}],
-            "max_tokens": settings["max_tokens"],
+            "max_completion_tokens": settings["max_tokens"],
         }
         if model.get("reasoning_effort") is not None:
             payload["reasoning_effort"] = model["reasoning_effort"]
