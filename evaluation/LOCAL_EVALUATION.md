@@ -78,5 +78,5 @@ The local-evaluation GitHub Actions workflow runs tests and configuration/datase
 - Local model downloads use bandwidth and disk space; inference uses the user's CPU/GPU, RAM, electricity, and time.
 - The 40-case dataset is synthetic and small. It is useful for functional comparison, not a statistically strong general-purpose model ranking.
 - A local benchmark measures this computer's runtime and the selected quantized model, not abstract model capability alone.
-- Ollama may expose cloud model features separately; this runner rejects non-loopback URLs to prevent accidental use of hosted endpoints.
+- Ollama may expose cloud model features separately; this runner rejects non-loopback URLs, disables environment-configured HTTP proxies, and rejects redirects so prompts cannot be forwarded away from the local endpoint.
 - The optional paid-provider adapters and their separate workflow are not part of this free evaluation path. Do not trigger the live hosted-provider workflow for a zero-cost run.
