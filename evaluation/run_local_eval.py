@@ -94,10 +94,19 @@ def parse_response(data: dict[str,Any]) -> dict[str,Any]:
             "total_duration_ns":data.get("total_duration"),"load_duration_ns":data.get("load_duration"),
             "prompt_eval_duration_ns":data.get("prompt_eval_duration"),"eval_duration_ns":data.get("eval_duration")}
 
+class RejectRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+def local_open(request, timeout):
+    # Never inherit HTTP(S)_PROXY settings or follow a redirect away from loopback.
+    opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),RejectRedirectHandler())
+    return opener.open(request,timeout=timeout)
+
 def local_get(base: str,path: str,timeout: float=10):
     try:
         req=urllib.request.Request(base.rstrip("/") + path,headers={"Accept":"application/json"})
-        with urllib.request.urlopen(req,timeout=timeout) as response: value=json.loads(response.read().decode("utf-8"))
+        with local_open(req,timeout=timeout) as response: value=json.loads(response.read().decode("utf-8"))
         return value if isinstance(value,dict) else None
     except (OSError,urllib.error.URLError,json.JSONDecodeError): return None
 
@@ -106,7 +115,7 @@ def call_model(model,config,case):
     req=urllib.request.Request(url,data=json.dumps(payload).encode("utf-8"),headers=headers,method="POST")
     started=time.perf_counter()
     try:
-        with urllib.request.urlopen(req,timeout=config.get("timeout_seconds",300)) as response:
+        with local_open(req,timeout=config.get("timeout_seconds",300)) as response:
             data=json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc: raise RuntimeError(f"Ollama returned HTTP {exc.code}") from exc
     result=parse_response(data); result["latency_ms"]=round((time.perf_counter()-started)*1000,2)
