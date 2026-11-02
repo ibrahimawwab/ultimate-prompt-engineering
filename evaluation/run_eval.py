@@ -88,7 +88,7 @@ def validate_config(config: Any) -> None:
             raise ValueError(f"{model['name']}.supports_temperature must be boolean")
         if model.get("reasoning_effort") not in (None, "none", "low", "medium", "high", "xhigh", "max"):
             raise ValueError(f"{model['name']}.reasoning_effort is unsupported")
-        for key in ("pricing_source", "pricing_effective_date", "pricing_valid_through"):
+        for key in ("pricing_source", "pricing_effective_date", "pricing_valid_through", "pricing_conditions"):
             if key in model and not isinstance(model[key], str):
                 raise ValueError(f"{model['name']}.{key} must be a string")
         for key in ("input_cost_per_1m_tokens", "output_cost_per_1m_tokens"):
@@ -238,6 +238,7 @@ def run(config: dict[str, Any], cases: list[dict[str, Any]], out_dir: Path,
                 "pricing_source": model.get("pricing_source"),
                 "pricing_effective_date": model.get("pricing_effective_date"),
                 "pricing_valid_through": model.get("pricing_valid_through"),
+                "pricing_conditions": model.get("pricing_conditions"),
                 "input_cost_per_1m_tokens": model.get("input_cost_per_1m_tokens"),
                 "output_cost_per_1m_tokens": model.get("output_cost_per_1m_tokens"),
                 "successes": 0, "schema_valid": 0, "category_correct": 0,
