@@ -53,7 +53,16 @@ class EvaluationHarnessTests(unittest.TestCase):
             self.assertIn("Content-Type", headers)
             self.assertIn("example ticket", json.dumps(payload))
             self.assertIn("temperature", json.dumps(payload))
-        self.assertEqual(models[0]["provider"], "openai_chat_completions")
+        openai_url, openai_headers, openai_payload = build_request(models[0], settings, case, "secret")
+        self.assertEqual(openai_headers["Authorization"], "Bearer secret")
+        self.assertEqual(openai_payload["messages"][0]["role"], "system")
+        anthropic_url, anthropic_headers, anthropic_payload = build_request(models[1], settings, case, "secret")
+        self.assertEqual(anthropic_headers["x-api-key"], "secret")
+        self.assertIn("system", anthropic_payload)
+        google_url, google_headers, google_payload = build_request(models[2], settings, case, "secret")
+        self.assertEqual(google_headers["x-goog-api-key"], "secret")
+        self.assertNotIn("{model}", google_url)
+        self.assertIn("generationConfig", google_payload)
 
     def test_anthropic_response_mapping(self):
         result = parse_response("anthropic_messages", {
