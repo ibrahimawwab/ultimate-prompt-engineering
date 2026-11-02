@@ -12,13 +12,13 @@ Use a role when the task benefits from a clearly defined perspective or set of e
 
 ## Worked example
 
-**Weak prompt**
+### Weak prompt
 
 ```text
 Review this code.
 ```
 
-**Improved prompt**
+### Improved prompt
 
 ```text
 Act as a cautious application security reviewer.
