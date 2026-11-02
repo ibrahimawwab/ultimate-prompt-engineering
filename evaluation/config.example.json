@@ -32,7 +32,7 @@
       "output_cost_per_1m_tokens": 0.5,
       "pricing_source": "https://platform.claude.com/docs/en/about-claude/pricing",
       "pricing_effective_date": "2026-11-02",
-      "pricing_valid_through": "Prompts up to 100,000 tokens; higher rates apply above 100,000"
+      "pricing_conditions": "Prompts up to 100,000 tokens; higher rates apply above 100,000"
     },
     {
       "name": "google-gemini-3-8-flash",
