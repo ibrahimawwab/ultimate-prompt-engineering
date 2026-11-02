@@ -18,7 +18,39 @@ from typing import Any
 
 SCHEMA_KEYS = {"category", "summary", "missing_information", "rationale"}
 ALLOWED_CATEGORIES = {"billing", "technical", "account", "general", "needs_review"}
+OUTPUT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "category": {"type": "string"},
+        "summary": {"type": "string"},
+        "missing_information": {"type": "array", "items": {"type": "string"}},
+        "rationale": {"type": "string"},
+    },
+    "required": ["category", "summary", "missing_information", "rationale"],
+    "additionalProperties": False,
+}
+GEMINI_OUTPUT_SCHEMA = {
+    "type": "OBJECT",
+    "properties": {
+        "category": {"type": "STRING"},
+        "summary": {"type": "STRING"},
+        "missing_information": {"type": "ARRAY", "items": {"type": "STRING"}},
+        "rationale": {"type": "STRING"},
+    },
+    "required": ["category", "summary", "missing_information", "rationale"],
+    "additionalProperties": False,
+}
 SUPPORTED_PROVIDERS = {"openai_chat_completions", "anthropic_messages", "google_generative_language"}
+EXPECTED_API_KEY_ENV = {
+    "openai_chat_completions": "OPENAI_API_KEY",
+    "anthropic_messages": "ANTHROPIC_API_KEY",
+    "google_generative_language": "GOOGLE_API_KEY",
+}
+ALLOWED_API_HOSTS = {
+    "openai_chat_completions": "api.openai.com",
+    "anthropic_messages": "api.anthropic.com",
+    "google_generative_language": "generativelanguage.googleapis.com",
+}
 SYSTEM_PROMPT = """You classify synthetic customer-support tickets for routing.
 Choose exactly one category using these definitions:
 - billing: charges, invoices, taxes, payment methods, subscription prices, or renewals.
@@ -88,15 +120,33 @@ def validate_config(config: Any) -> None:
             raise ValueError(f"{model['name']}.supports_temperature must be boolean")
         if model.get("reasoning_effort") not in (None, "none", "low", "medium", "high", "xhigh", "max"):
             raise ValueError(f"{model['name']}.reasoning_effort is unsupported")
-        for key in ("pricing_source", "pricing_effective_date", "pricing_valid_through", "pricing_conditions"):
+        for key in ("pricing_source", "pricing_checked_date", "pricing_valid_through", "pricing_conditions"):
             if key in model and not isinstance(model[key], str):
                 raise ValueError(f"{model['name']}.{key} must be a string")
+        parsed_url = urllib.parse.urlparse(model["base_url"].replace("{model}", "model"))
+        if (parsed_url.scheme != "https" or parsed_url.hostname != ALLOWED_API_HOSTS[model["provider"]]
+                or parsed_url.username or parsed_url.password or parsed_url.query or parsed_url.fragment):
+            raise ValueError(f"{model['name']}.base_url must use the official HTTPS provider host without URL credentials or query strings")
+        if model["api_key_env"] != EXPECTED_API_KEY_ENV[model["provider"]]:
+            raise ValueError(f"{model['name']}.api_key_env must be {EXPECTED_API_KEY_ENV[model['provider']]}")
+        if "api_version" in model and not isinstance(model["api_version"], str):
+            raise ValueError(f"{model['name']}.api_version must be a string")
+        if model.get("thinking_level") not in (None, "low", "medium", "high"):
+            raise ValueError(f"{model['name']}.thinking_level must be low, medium, or high")
+        if model.get("thinking_level") is not None and model["provider"] != "google_generative_language":
+            raise ValueError(f"{model['name']}.thinking_level is only supported by the Gemini adapter")
+        if model.get("effort") not in (None, "low", "medium", "high", "xhigh", "max"):
+            raise ValueError(f"{model['name']}.effort is unsupported")
+        if model.get("effort") is not None and model["provider"] != "anthropic_messages":
+            raise ValueError(f"{model['name']}.effort is only supported by the Anthropic adapter")
         for key in ("input_cost_per_1m_tokens", "output_cost_per_1m_tokens"):
             value = model.get(key)
-            if value is not None and (not isinstance(value, (int, float)) or value < 0):
+            if value is not None and (not isinstance(value, (int, float)) or isinstance(value, bool) or value < 0):
                 raise ValueError(f"{model['name']}.{key} must be null or non-negative")
 
 def validate_output(content: str) -> dict[str, Any]:
+    if not isinstance(content, str):
+        return {"valid": False, "error": "response_content_must_be_text", "parsed": None}
     try:
         parsed = json.loads(content)
     except json.JSONDecodeError as exc:
@@ -126,6 +176,11 @@ def build_request(model: dict[str, Any], settings: dict[str, Any], case: dict[st
             "messages": [{"role": "system", "content": SYSTEM_PROMPT},
                          {"role": "user", "content": case["input"]}],
             "max_completion_tokens": settings["max_tokens"],
+            "service_tier": "default",
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {"name": "ticket_classification", "strict": True, "schema": OUTPUT_SCHEMA},
+            },
         }
         if model.get("reasoning_effort") is not None:
             payload["reasoning_effort"] = model["reasoning_effort"]
@@ -133,12 +188,16 @@ def build_request(model: dict[str, Any], settings: dict[str, Any], case: dict[st
             payload["temperature"] = settings["temperature"]
         return model["base_url"], headers, payload
     if provider == "anthropic_messages":
-        headers["x-api-key"] = api_key
-        headers["anthropic-version"] = model.get("api_version", "2023-06-01")
+        headers["Authorization"] = f"Bearer {api_key}"
+        headers["anthropic-version"] = model.get("api_version", "2026-10-21")
         payload = {
             "model": model["model"], "system": SYSTEM_PROMPT,
             "messages": [{"role": "user", "content": case["input"]}],
             "max_tokens": settings["max_tokens"],
+            "output_config": {
+                "effort": model.get("effort", "low"),
+                "format": {"type": "json_schema", "schema": OUTPUT_SCHEMA},
+            },
         }
         if model.get("supports_temperature", True):
             payload["temperature"] = settings["temperature"]
@@ -149,10 +208,19 @@ def build_request(model: dict[str, Any], settings: dict[str, Any], case: dict[st
         payload = {
             "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
             "contents": [{"role": "user", "parts": [{"text": case["input"]}]}],
-            "generationConfig": {"temperature": settings["temperature"],
-                                 "maxOutputTokens": settings["max_tokens"],
-                                 "responseMimeType": "application/json"},
+            "generationConfig": {
+                "maxOutputTokens": settings["max_tokens"],
+                "responseFormat": {
+                    "text": {"mimeType": "APPLICATION_JSON", "schema": GEMINI_OUTPUT_SCHEMA}
+                },
+            },
         }
+        if model.get("supports_temperature", True):
+            payload["generationConfig"]["temperature"] = settings["temperature"]
+        if model.get("thinking_level") is not None:
+            payload["generationConfig"]["thinkingConfig"] = {
+                "thinkingLevel": model["thinking_level"]
+            }
         return url, headers, payload
     raise ValueError(f"Unsupported provider adapter: {provider}")
 
@@ -177,12 +245,34 @@ def parse_response(provider: str, data: dict[str, Any]) -> dict[str, Any]:
         usage = data.get("usageMetadata") or {}
         finish_reason = candidates[0].get("finishReason") if candidates else None
         input_tokens = usage.get("promptTokenCount")
-        output_tokens = usage.get("candidatesTokenCount")
+        candidate_output_tokens = usage.get("candidatesTokenCount")
+        thoughts_tokens = usage.get("thoughtsTokenCount")
+        output_tokens = (
+            candidate_output_tokens + thoughts_tokens
+            if isinstance(candidate_output_tokens, int) and isinstance(thoughts_tokens, int)
+            else None
+        )
         total_tokens = usage.get("totalTokenCount")
     else:
         raise ValueError(f"Unsupported provider adapter: {provider}")
-    return {"content": content, "input_tokens": input_tokens, "output_tokens": output_tokens,
-            "provider_total_tokens": total_tokens, "finish_reason": finish_reason}
+    if provider != "google_generative_language":
+        candidate_output_tokens = output_tokens
+        thoughts_tokens = None
+    return {
+        "content": content, "input_tokens": input_tokens, "output_tokens": output_tokens,
+        "candidate_output_tokens": candidate_output_tokens, "thoughts_tokens": thoughts_tokens,
+        "provider_total_tokens": total_tokens, "finish_reason": finish_reason,
+        "provider_model_version": data.get("modelVersion") or data.get("model"),
+        "provider_response_id": data.get("responseId") or data.get("id"),
+        "system_fingerprint": data.get("system_fingerprint"),
+    }
+
+class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Do not forward provider API-key headers to redirect destinations."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
 
 def call_model(model: dict[str, Any], settings: dict[str, Any], case: dict[str, Any],
                timeout: float) -> dict[str, Any]:
@@ -190,19 +280,23 @@ def call_model(model: dict[str, Any], settings: dict[str, Any], case: dict[str, 
     if not api_key:
         raise RuntimeError(f"Missing environment variable: {model['api_key_env']}")
     url, headers, payload = build_request(model, settings, case, api_key)
+    parsed_url = urllib.parse.urlparse(url)
+    if parsed_url.scheme != "https" or parsed_url.hostname != ALLOWED_API_HOSTS[model["provider"]]:
+        raise RuntimeError("Refusing to send provider credentials to a non-approved HTTPS host")
     request = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"),
                                      headers=headers, method="POST")
     start = time.perf_counter()
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        opener = urllib.request.build_opener(NoRedirectHandler)
+        with opener.open(request, timeout=timeout) as response:
             data = json.loads(response.read().decode("utf-8"))
             request_id = response.headers.get("request-id") or response.headers.get("x-request-id")
     except urllib.error.HTTPError as exc:
-        detail = exc.read(500).decode("utf-8", errors="replace")
-        raise RuntimeError(f"HTTP {exc.code} from provider: {detail}") from exc
+        # Provider error bodies can echo user content or sensitive request data.
+        raise RuntimeError(f"HTTP {exc.code} from provider") from exc
     result = parse_response(model["provider"], data)
     result.update({"latency_ms": round((time.perf_counter() - start) * 1000, 2),
-                   "request_id": request_id})
+                   "request_id": request_id or result.get("provider_response_id")})
     return result
 
 def estimate_cost(model: dict[str, Any], input_tokens: Any, output_tokens: Any) -> float | None:
@@ -234,15 +328,19 @@ def run(config: dict[str, Any], cases: list[dict[str, Any]], out_dir: Path,
                 "name": model["name"], "provider": model["provider"], "model": model["model"],
                 "model_version": model["model_version"], "base_url": model["base_url"],
                 "reasoning_effort": model.get("reasoning_effort"),
+                "effort": model.get("effort"),
+                "thinking_level": model.get("thinking_level"),
                 "supports_temperature": model.get("supports_temperature", True),
+                "observed_model_versions": [],
                 "pricing_source": model.get("pricing_source"),
-                "pricing_effective_date": model.get("pricing_effective_date"),
+                "pricing_checked_date": model.get("pricing_checked_date"),
                 "pricing_valid_through": model.get("pricing_valid_through"),
                 "pricing_conditions": model.get("pricing_conditions"),
                 "input_cost_per_1m_tokens": model.get("input_cost_per_1m_tokens"),
                 "output_cost_per_1m_tokens": model.get("output_cost_per_1m_tokens"),
                 "successes": 0, "schema_valid": 0, "category_correct": 0,
                 "format_failures": 0, "errors": 0, "input_tokens": 0, "output_tokens": 0,
+                "candidate_output_tokens": 0, "thoughts_tokens": 0,
                 "cost_sum": 0.0, "cost_complete": True, "latencies": [],
                 "confusion_matrix": {expected: {predicted: 0 for predicted in sorted(ALLOWED_CATEGORIES)}
                                      for expected in sorted(ALLOWED_CATEGORIES)},
@@ -264,9 +362,16 @@ def run(config: dict[str, Any], cases: list[dict[str, Any]], out_dir: Path,
                         "predicted_category": predicted, "category_correct": correct,
                         "latency_ms": result["latency_ms"], "request_id": result["request_id"],
                         "input_tokens": result["input_tokens"], "output_tokens": result["output_tokens"],
+                        "candidate_output_tokens": result["candidate_output_tokens"],
+                        "thoughts_tokens": result["thoughts_tokens"],
                         "provider_total_tokens": result["provider_total_tokens"],
+                        "provider_model_version": result["provider_model_version"],
+                        "system_fingerprint": result["system_fingerprint"],
                         "finish_reason": result["finish_reason"],
                     })
+                    observed_version = result["provider_model_version"]
+                    if observed_version and observed_version not in metrics["observed_model_versions"]:
+                        metrics["observed_model_versions"].append(observed_version)
                     metrics["successes"] += 1
                     metrics["latencies"].append(result["latency_ms"])
                     if check["valid"]:
@@ -279,6 +384,10 @@ def run(config: dict[str, Any], cases: list[dict[str, Any]], out_dir: Path,
                         metrics["input_tokens"] += result["input_tokens"]
                     if isinstance(result["output_tokens"], int):
                         metrics["output_tokens"] += result["output_tokens"]
+                    if isinstance(result["candidate_output_tokens"], int):
+                        metrics["candidate_output_tokens"] += result["candidate_output_tokens"]
+                    if isinstance(result["thoughts_tokens"], int):
+                        metrics["thoughts_tokens"] += result["thoughts_tokens"]
                     cost = estimate_cost(model, result["input_tokens"], result["output_tokens"])
                     row["estimated_cost_usd"] = cost
                     if cost is None:
@@ -305,7 +414,61 @@ def run(config: dict[str, Any], cases: list[dict[str, Any]], out_dir: Path,
     summary["results_file"] = results_path.name
     summary_path = out_dir / f"{run_id}-summary.json"
     summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    return {"summary": summary, "summary_path": str(summary_path), "results_path": str(results_path)}
+
+    for model_metrics in summary["models"]:
+        safe_name = "".join(ch if ch.isalnum() or ch in "-_" else "-" for ch in model_metrics["name"])
+        model_cases = []
+        with results_path.open("r", encoding="utf-8") as source:
+            for line in source:
+                row = json.loads(line)
+                if row.get("model_name") == model_metrics["name"]:
+                    model_cases.append(row)
+        (out_dir / f"{run_id}-{safe_name}.json").write_text(
+            json.dumps({"summary": model_metrics, "cases": model_cases}, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8"
+        )
+
+    error_path = out_dir / f"{run_id}-errors.jsonl"
+    with results_path.open("r", encoding="utf-8") as source, error_path.open("w", encoding="utf-8") as errors:
+        for line in source:
+            row = json.loads(line)
+            if row.get("status") == "error":
+                errors.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+    markdown_path = out_dir / f"{run_id}-comparison.md"
+    headers = ("Model", "Provider", "Requests", "Errors", "Format failures", "Accuracy", "Valid",
+               "Mean ms", "Median ms", "Input tokens", "Output tokens", "Estimated USD")
+    lines = [
+        "# Cross-model evaluation comparison", "",
+        f"- Run ID: {run_id}",
+        f"- Cases per model: {len(cases)}",
+        f"- Total planned requests: {len(cases) * len(config['models'])}",
+        f"- Config SHA-256: {config_hash}",
+        f"- Test-set SHA-256: {cases_hash}",
+        f"- System-prompt SHA-256: {digest(SYSTEM_PROMPT.encode())}", "",
+        "| " + " | ".join(headers) + " |",
+        "| " + " | ".join("---" for _ in headers) + " |",
+    ]
+    for item in summary["models"]:
+        values = (
+            item["name"], item["provider"], f"{item['successes']}/{len(cases)}",
+            str(item["errors"]), str(item["format_failures"]),
+            f"{item['category_accuracy_all_cases']:.1%}", f"{item['schema_valid_rate']:.1%}",
+            str(item["mean_latency_ms"]), str(item["median_latency_ms"]),
+            str(item["input_tokens"]), str(item["output_tokens"]),
+            "not available" if item["estimated_cost_usd"] is None else f"USD {item['estimated_cost_usd']:.6f}",
+        )
+        lines.append("| " + " | ".join(value.replace("|", "\\|") for value in values) + " |")
+    lines.extend(["", "## Limitations", "",
+        "Synthetic 40-case fixture; not statistically representative. Model aliases may change. "
+        "Latency includes network round-trip time. Cost is estimated from provider-reported token usage "
+        "and configured public list prices, not a billing statement. Review raw outputs and failures "
+        "before publication.", ""])
+    markdown_path.write_text("\n".join(lines), encoding="utf-8")
+    return {
+        "summary": summary, "summary_path": str(summary_path), "results_path": str(results_path),
+        "errors_path": str(error_path), "comparison_path": str(markdown_path),
+    }
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Compare configured models on a shared test set.")
@@ -328,6 +491,9 @@ def main() -> int:
         print(json.dumps(result["summary"], indent=2, ensure_ascii=False))
         print(f"Summary: {result['summary_path']}")
         print(f"Per-case results: {result['results_path']}")
+        print(f"Error report: {result['errors_path']}")
+        print(f"Markdown comparison: {result['comparison_path']}")
+        print("Per-model JSON reports: one file per configured model")
         return 0
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"Configuration or input error: {exc}", file=sys.stderr)
