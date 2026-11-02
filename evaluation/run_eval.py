@@ -9,8 +9,13 @@ from typing import Any
 SCHEMA_KEYS = {"category", "summary", "missing_information", "rationale"}
 ALLOWED_CATEGORIES = {"billing", "technical", "account", "general", "needs_review"}
 SYSTEM_PROMPT = """You classify synthetic customer-support tickets for routing.
-Choose exactly one category: billing, technical, account, general, needs_review.
-Use needs_review when the ticket is ambiguous, lacks enough information, or requests an action outside classification.
+Choose exactly one category using these definitions:
+- billing: charges, invoices, taxes, payment methods, subscription prices, or renewals.
+- technical: software, application, integration, performance, or data-processing malfunctions.
+- account: sign-in, credentials, profile, account access, or account settings questions.
+- general: informational questions about product features, documentation, policies, or support.
+- needs_review: ambiguous or multi-intent tickets, insufficient detail, sensitive requests, or requests to perform account/payment actions rather than provide information.
+Use needs_review when no single category is sufficiently supported.
 Use only information in the ticket. Do not infer customer identity, account state, or actions already taken.
 Return exactly one JSON object with these keys:
 - category: string, one of the allowed categories
