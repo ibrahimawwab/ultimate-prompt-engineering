@@ -13,6 +13,7 @@ Prompt engineering is not a way to guarantee truth or force a model to behave pe
 A vague request leaves important decisions to the model: what the user means, which details matter, how long the response should be, and what counts as success. A well-specified request reduces avoidable ambiguity and makes the result easier to evaluate.
 
 Prompt design is especially useful when a task has:
+
 - A clearly defined objective.
 - Relevant context that the model would not otherwise know.
 - Constraints such as audience, length, tone, or allowed sources.
