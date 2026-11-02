@@ -9,6 +9,7 @@ Prompt injection is a security problem for systems that combine models with data
 ## Threat model
 
 Identify:
+
 - untrusted inputs and retrieved sources;
 - trusted instructions and configuration;
 - sensitive data available to the system;
