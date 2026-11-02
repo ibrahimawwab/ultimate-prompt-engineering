@@ -5,6 +5,7 @@ Learn established prompting patterns, understand their trade-offs, and select te
 ## Learning outcomes
 
 After completing this section, you should be able to:
+
 - establish a baseline with zero-shot prompting;
 - use demonstrations to communicate patterns with few-shot prompting;
 - use role framing without overstating model capabilities;
