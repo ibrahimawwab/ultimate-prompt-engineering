@@ -1,0 +1,34 @@
+name: Content improvement
+description: Suggest a correction or improvement to learning material
+title: "[Content]: "
+labels: ["documentation"]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: File or section
+      description: Link to the relevant page, if known.
+      placeholder: "02-Core-Techniques/Few-Shot-Prompting.md"
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What should change?
+      description: Explain the problem or proposed improvement.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence
+      description: Include authoritative sources or reproducible examples where possible.
+    validations:
+      required: false
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Review
+      options:
+        - label: I have not included secrets or private personal data.
+          required: true
