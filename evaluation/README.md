@@ -13,7 +13,7 @@ Per-case results include raw output, schema validation, expected/predicted label
 ## Supported adapters
 
 | Adapter | API format | Authentication | Usage fields |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | openai_chat_completions | Chat Completions | Bearer token | prompt_tokens, completion_tokens |
 | anthropic_messages | Messages API | x-api-key and anthropic-version | input_tokens, output_tokens |
 | google_generative_language | Gemini generateContent | x-goog-api-key | promptTokenCount, candidatesTokenCount |
