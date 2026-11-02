@@ -8,27 +8,27 @@ Five reviewed starting-point prompts. Replace every {{VARIABLE}} with task-speci
 - **Difficulty:** Beginner
 - **Recommended use:** Starting work when requirements are incomplete.
 
-**Copy-ready prompt**
+Copy-ready prompt:
 
 > Help clarify this request: {{REQUEST}}. Context: {{CONTEXT}}. Identify the intended outcome, known constraints, assumptions, ambiguities, dependencies, and acceptance criteria. Ask only the highest-value clarification questions; if safe to proceed, state provisional assumptions and a bounded first step. Do not silently invent requirements.
 
-**Example input**
+Example input:
 
 Request: prepare a report on customer feedback. Context: quarterly review, no audience specified.
 
-**Expected output**
+Expected output:
 
 A concise requirements brief with uncertainties and prioritized questions.
 
-**Adaptation tips**
+Adaptation tips:
 
 Confirm audience, deadline, and source material before drafting the final deliverable.
 
-**Limitations**
+Limitations:
 
 Clarification quality depends on the context supplied; assumptions can still be wrong.
 
-**Safety considerations**
+Safety considerations:
 
 Do not request unnecessary personal, confidential, or credential information.
 
@@ -40,27 +40,27 @@ Do not request unnecessary personal, confidential, or credential information.
 - **Difficulty:** Intermediate
 - **Recommended use:** Choosing between tools, vendors, approaches, or plans.
 
-**Copy-ready prompt**
+Copy-ready prompt:
 
 > Compare {{OPTIONS}} for {{GOAL}}. Criteria and weights: {{CRITERIA}}. Constraints: {{CONSTRAINTS}}. Evidence available: {{EVIDENCE}}. Create a comparison matrix, identify unknowns, explain trade-offs, and provide a conditional recommendation. Do not fabricate prices, capabilities, or ratings; mark data that needs current verification.
 
-**Example input**
+Example input:
 
 Options: self-hosted and managed issue trackers. Criteria: cost, maintenance, access control, portability.
 
-**Expected output**
+Expected output:
 
 A criteria-based comparison with assumptions and a conditional recommendation.
 
-**Adaptation tips**
+Adaptation tips:
 
 Verify changing facts directly with vendors and test shortlisted options.
 
-**Limitations**
+Limitations:
 
 A comparison is only as fair as the criteria and evidence; weights are subjective.
 
-**Safety considerations**
+Safety considerations:
 
 Consider privacy, accessibility, contractual terms, and data portability.
 
@@ -72,27 +72,27 @@ Consider privacy, accessibility, contractual terms, and data portability.
 - **Difficulty:** Beginner
 - **Recommended use:** Editing a report, proposal, policy, or procedure.
 
-**Copy-ready prompt**
+Copy-ready prompt:
 
 > Review this document for {{AUDIENCE}} and purpose {{PURPOSE}}. Text: {{DOCUMENT}}. Check structure, clarity, terminology, unsupported claims, contradictions, missing sections, tone, and actionability. Return prioritized findings with section references available in the text, then a revised version only if requested. Preserve intended meaning and flag substantive changes.
 
-**Example input**
+Example input:
 
 Purpose: internal project proposal. Audience: technical leadership. Text: supplied draft.
 
-**Expected output**
+Expected output:
 
 An editorial review with prioritized issues and no unrequested rewriting.
 
-**Adaptation tips**
+Adaptation tips:
 
 Verify factual statements and obtain owner approval for substantive policy changes.
 
-**Limitations**
+Limitations:
 
 Editing cannot validate facts or replace legal, technical, or subject-matter review.
 
-**Safety considerations**
+Safety considerations:
 
 Remove confidential or personal information before sharing.
 
@@ -104,27 +104,27 @@ Remove confidential or personal information before sharing.
 - **Difficulty:** Intermediate
 - **Recommended use:** Translating professional material across languages.
 
-**Copy-ready prompt**
+Copy-ready prompt:
 
 > Translate from {{SOURCE_LANGUAGE}} to {{TARGET_LANGUAGE}}. Audience: {{AUDIENCE}}. Domain: {{DOMAIN}}. Text: {{TEXT}}. Preserve meaning, numbers, names, units, and formatting. Use this glossary: {{GLOSSARY}}. Flag ambiguous phrases and offer alternatives where meaning is uncertain. Do not add explanatory content inside the translation.
 
-**Example input**
+Example input:
 
 From English to Dari. Domain: laboratory quality management. Text: supplied paragraph; glossary includes QC = quality control.
 
-**Expected output**
+Expected output:
 
 A faithful translation plus a separate ambiguity note where needed.
 
-**Adaptation tips**
+Adaptation tips:
 
 Have a qualified bilingual domain reviewer check high-stakes terminology.
 
-**Limitations**
+Limitations:
 
 Nuance, dialect, and specialist terms may not map one-to-one.
 
-**Safety considerations**
+Safety considerations:
 
 Do not translate identifiable records unless authorized and appropriately protected.
 
@@ -136,26 +136,26 @@ Do not translate identifiable records unless authorized and appropriately protec
 - **Difficulty:** Intermediate
 - **Recommended use:** Reviewing an incident, launch, or project milestone.
 
-**Copy-ready prompt**
+Copy-ready prompt:
 
 > Facilitate an after-action review for {{EVENT}}. Intended objectives: {{OBJECTIVES}}. Timeline: {{TIMELINE}}. Evidence: {{EVIDENCE}}. Identify what was expected, what happened, contributing factors, what worked, what did not, impact, and prioritized improvements with owners and measures. Distinguish evidence from recollection and avoid assigning blame without evidence.
 
-**Example input**
+Example input:
 
 Event: delayed software release. Evidence: milestone log and incident notes.
 
-**Expected output**
+Expected output:
 
 A factual review with corrective actions, owners to assign, and measurable follow-up.
 
-**Adaptation tips**
+Adaptation tips:
 
 Validate timeline with participants and track actions to completion.
 
-**Limitations**
+Limitations:
 
 Incomplete records and hindsight bias can distort conclusions.
 
-**Safety considerations**
+Safety considerations:
 
 Limit access to sensitive incident details and protect people from unnecessary disclosure.
