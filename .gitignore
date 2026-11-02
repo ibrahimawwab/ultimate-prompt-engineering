@@ -1,0 +1,16 @@
+# Operating systems
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary and generated files
+*.tmp
+*.log
+.cache/
+_site/
