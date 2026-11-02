@@ -51,6 +51,7 @@ Pull each selected model manually with `ollama pull MODEL_TAG` before running. E
 ## Output artifacts
 
 Each run creates:
+
 - Combined per-case JSONL with raw model output, expected/predicted category, validation, status, latency, and available Ollama usage/duration fields.
 - One per-model JSON report with model metadata, aggregate metrics, confusion matrix, and per-case rows.
 - Summary JSON with hashes, run timestamps, environment metadata, and metrics.
