@@ -1,0 +1,66 @@
+name: Live cross-model evaluation
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_api_billing:
+        description: "I understand this run sends 40 requests to each configured provider and may incur API charges."
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-cross-model-evaluation
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    if: ${{ inputs.confirm_api_billing == true && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify required API secrets are configured
+        run: |
+          python - <<'PY'
+          import os
+          required = ("OPENAI_API_KEY", "ANTHROPIC_API_KEY", "GOOGLE_API_KEY")
+          missing = [name for name in required if not os.environ.get(name)]
+          if missing:
+              raise SystemExit("Missing GitHub Actions secrets: " + ", ".join(missing))
+          print("All required provider secrets are present.")
+          PY
+
+      - name: Validate evaluation configuration and dataset
+        run: |
+          python -m unittest discover -s evaluation/tests -v
+          python evaluation/run_eval.py --config evaluation/config.example.json --cases evaluation/cases.jsonl --validate-only
+
+      - name: Run live model comparison
+        run: |
+          python evaluation/run_eval.py --config evaluation/config.example.json --cases evaluation/cases.jsonl --output-dir evaluation-results
+
+      - name: Upload evaluation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-model-evaluation-${{ github.run_id }}
+          path: evaluation-results/
+          if-no-files-found: error
+          retention-days: 14
