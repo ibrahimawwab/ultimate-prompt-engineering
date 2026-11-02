@@ -29,6 +29,7 @@ A curated collection of **50 reusable prompt templates** across ten professional
 ## Entry standard
 
 Every entry includes:
+
 - Purpose, difficulty, and recommended use.
 - A copy-ready prompt with named variables.
 - An example input and expected-output characteristics.
