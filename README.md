@@ -30,7 +30,7 @@ By working through this repository, you will learn to:
 ## Learning path
 
 | Stage | Focus | Suggested outcome |
-|---|---|---|
+| --- | --- | --- |
 | 1. Fundamentals | Model behavior, prompt anatomy, context | Write a clear, bounded prompt |
 | 2. Core techniques | Zero-shot, few-shot, roles, structured outputs | Choose a suitable prompting pattern |
 | 3. Advanced techniques | Chaining, RAG, ReAct, multimodal and agentic workflows | Design a multi-step workflow |
@@ -78,10 +78,10 @@ Read [SECURITY.md](SECURITY.md) for vulnerability reporting and [CODE_OF_CONDUCT
 ## Roadmap
 
 - [x] Establish repository purpose, learning scope, and contribution standards.
-- [ ] Publish the complete fundamentals curriculum.
+- [x] Publish the initial fundamentals curriculum and beginner exercises.
 - [ ] Add core and advanced technique guides with limitations and citations.
 - [ ] Build a categorized library of at least 50 reviewed prompts.
-- [ ] Add exercises, case studies, and reproducible evaluation examples.
+- [ ] Add intermediate and advanced exercises, case studies, and reproducible evaluation examples.
 - [ ] Expand authoritative resources and maintain links over time.
 
 Progress is tracked through reviewed content and tests, not arbitrary completion badges or unverified statistics.
