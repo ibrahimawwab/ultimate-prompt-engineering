@@ -57,4 +57,4 @@ Use a deterministic evaluator when possible, cap branching and depth, record exp
 
 ## Further reading
 
-- [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/ Tree-of-Thoughts)
+- [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601)
