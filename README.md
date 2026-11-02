@@ -82,7 +82,7 @@ Read [SECURITY.md](SECURITY.md) for vulnerability reporting and [CODE_OF_CONDUCT
 - [x] Complete and publish the six core technique lessons.
 - [x] Develop the advanced technique curriculum with limitations and citations.
 - [x] Build a categorized library of 50 reusable prompt templates across ten domains.
-- [ ] Add intermediate and advanced exercises, case studies, and reproducible evaluation examples.
+- [x] Add intermediate and advanced exercises, case studies, and reproducible evaluation examples.
 - [ ] Expand authoritative resources and maintain links over time.
 
 Progress is tracked through reviewed content and tests, not arbitrary completion badges or unverified statistics.
