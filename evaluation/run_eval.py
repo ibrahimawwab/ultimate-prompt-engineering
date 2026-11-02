@@ -180,7 +180,7 @@ def run(config: dict[str, Any], cases: list[dict[str, Any]], out_dir: Path,
                     row.update({"status": "error", "error_type": type(exc).__name__, "error": str(exc)})
                     ms["errors"] += 1
                     ms["cost_complete"] = False
-                output.write(json.dumps(row, ensure_ascii=False) + "\\n")
+                output.write(json.dumps(row, ensure_ascii=False) + "\n")
                 output.flush()
             valid = ms["schema_valid"]
             ms["category_accuracy_on_valid_outputs"] = round(ms["category_correct"] / valid, 4) if valid else None
@@ -192,7 +192,7 @@ def run(config: dict[str, Any], cases: list[dict[str, Any]], out_dir: Path,
     summary["completed_at_utc"] = datetime.now(timezone.utc).isoformat()
     summary["results_file"] = results_path.name
     summary_path = out_dir / f"{run_id}-summary.json"
-    summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\\n", encoding="utf-8")
+    summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return {"summary": summary, "summary_path": str(summary_path), "results_path": str(results_path)}
 
 def main() -> int:
