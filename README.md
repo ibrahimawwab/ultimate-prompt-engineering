@@ -80,7 +80,7 @@ Read [SECURITY.md](SECURITY.md) for vulnerability reporting and [CODE_OF_CONDUCT
 - [x] Establish repository purpose, learning scope, and contribution standards.
 - [x] Publish the initial fundamentals curriculum and beginner exercises.
 - [ ] Complete review and merge of the six core technique lessons.
-- [ ] Develop the advanced technique curriculum with limitations and citations.
+- [x] Develop the advanced technique curriculum with limitations and citations.
 - [ ] Build a categorized library of at least 50 reviewed prompts.
 - [ ] Add intermediate and advanced exercises, case studies, and reproducible evaluation examples.
 - [ ] Expand authoritative resources and maintain links over time.
