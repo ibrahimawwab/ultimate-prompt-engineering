@@ -32,7 +32,7 @@ By working through this repository, you will learn to:
 | Stage | Focus | Suggested outcome |
 | --- | --- | --- |
 | 1. Fundamentals | Model behavior, prompt anatomy, context | Write a clear, bounded prompt |
-| 2. Core techniques | Zero-shot, few-shot, roles, structured outputs | Choose a suitable prompting pattern |
+| 2. Core techniques | Zero-shot, few-shot, roles, instructions, context, structured outputs | Choose and test a suitable prompting pattern |
 | 3. Advanced techniques | Chaining, RAG, ReAct, multimodal and agentic workflows | Design a multi-step workflow |
 | 4. Prompt library | Reusable prompts by task and domain | Adapt a tested starting point |
 | 5. Applications | Coding, research, education, business | Apply techniques to realistic work |
@@ -79,7 +79,8 @@ Read [SECURITY.md](SECURITY.md) for vulnerability reporting and [CODE_OF_CONDUCT
 
 - [x] Establish repository purpose, learning scope, and contribution standards.
 - [x] Publish the initial fundamentals curriculum and beginner exercises.
-- [ ] Add core and advanced technique guides with limitations and citations.
+- [ ] Complete review and merge of the six core technique lessons.
+- [ ] Develop the advanced technique curriculum with limitations and citations.
 - [ ] Build a categorized library of at least 50 reviewed prompts.
 - [ ] Add intermediate and advanced exercises, case studies, and reproducible evaluation examples.
 - [ ] Expand authoritative resources and maintain links over time.
